@@ -1,0 +1,455 @@
+← Back to portfolio
+Overview
+Systems
+Master flow
+Integration
+Channels and variants
+Greenfield
+Brownfield
+Variant examples
+Notes
+Lead-to-Cash: Subscription Creation Across Salesforce, Oracle EBS, SAP BRIM and SNB
+Integration architecture, process flows and worked examples for a multi-ERP subscription commerce platform
+1. Overview
+This case study describes the end-to-end lead-to-cash process for creating a new subscription in a landscape that combines Salesforce (CRM, CPQ and Service), Oracle E-Business Suite (Order Management and Receivables), SAP BRIM (billing and usage rating), a custom Subscription and Billing system (SNB) and AWS-metered usage. An integration layer orchestrates the hand-offs between these platforms using REST and SOAP APIs, so that a quote accepted in Salesforce results in an active subscription, an invoice and a support entitlement, with invoice details synchronised back to SNB and Salesforce.
+The document covers the master flow, the quote entry channels and order variants (new, add-on, expansion, upgrade and renewal), the integration contracts between systems, and fully worked greenfield and brownfield examples. The brownfield example converts a perpetual license with an active support and subscription (SNS) contract into a subscription and credits the unused SNS period.
+2. Systems landscape
+System
+Role in the process
+Key entities
+Salesforce Sales and CPQ
+Lead, opportunity, quote configuration and approval; Deal Desk AI assists configuration
+Lead, Opportunity, Quote
+Subscription Commerce Cloud Platform
+Self-service quoting and ordering for customers, partners and MSPs
+Cart, Quote request
+PIM
+Product and price master feeding offers and price lists
+Product, Price book, Offer
+Oracle EBS Order Management
+Order booking and fulfilment orchestration
+Sales order
+SNB (VMware custom)
+System of record for subscriptions: SID creation, activation, amendments, renewals, onboarding and notifications
+Subscription (SID), IB instance, Entitlement
+SAP BRIM
+Subscription billing, usage rating and invoicing run
+Billing account, Usage record, Bill
+Oracle EBS Receivables (AR)
+Invoice posting and receivables
+Invoice, Credit memo
+Salesforce Service
+Support entitlements and cases
+Entitlement, Case
+AWS
+Source of metered usage data
+Usage records
+3. Master lead-to-cash flow
+Order data
+Deal Desk AI
+CPQ assistant
+Product and price master
+PIM
+Quote
+Salesforce CPQ
+Credit check
+Before approval
+Order
+Oracle EBS OM
+Subscription
+SNB (custom)
+Onboarding
+Email, payment
+Billing
+SAP BRIM
+Invoice
+Oracle EBS AR
+Support
+Salesforce Service
+Sync to SNB
+Invoice details
+Sync to SFDC
+Invoice details
+AWS usage
+Metered data
+Salesforce
+Oracle EBS
+SAP
+VMware custom
+Control or AI
+Master or external
+Process flow
+Data feed
+4. Process stages and integration contracts
+#
+Stage
+System
+What happens
+1
+Lead and opportunity
+Salesforce
+Lead is qualified and converted to an opportunity. Entry can be sales-led or through self-service channels of the Subscription Commerce Cloud Platform.
+2
+Quote
+Salesforce CPQ, Deal Desk AI, PIM
+Offers and prices come from PIM. Deal Desk AI assists with configuration and discount guidance. Quote is priced and validated.
+3
+Credit check
+Credit service
+Runs before the quote is submitted for approval or accepted. A failed check blocks submission or routes the quote to finance review.
+4
+Order
+Oracle EBS OM
+Approved quote is created as a sales order and booked.
+5
+Subscription
+SNB
+Order creates the subscription ID (SID), activates it, provisions entitlements and sends a notification email.
+6
+Customer onboarding
+SNB
+Customer selects payment method and bill-to address.
+7
+Billing and usage
+SAP BRIM
+Recurring charges and AWS usage are rated and billed. Order data supports billing and invoice.
+8
+Invoice
+Oracle EBS AR
+Invoice is generated and posted. Invoice details are synchronised to SNB and Salesforce.
+9
+Support
+Salesforce Service
+Support entitlement is created and linked to the SID and IB instance.
+Interface
+Protocol and pattern (industry standard)
+Notes
+PIM to CPQ and Deal Desk AI
+REST/JSON (Offers API), OAuth 2.0
+Product catalog and price book sync; event or scheduled refresh
+Self-service platform to CPQ
+REST/JSON (Quote API), OAuth 2.0
+Same credit check and approval path as sales-led quotes
+CPQ to credit check
+REST/JSON, synchronous
+Blocking gate before approval
+CPQ to Oracle OM
+SOAP via EBS Integrated SOAP Gateway (or REST service), Order Import interface
+Order create from approved quote; idempotency key on quote number
+Oracle OM to SNB
+REST/JSON (Order and Subscription APIs) plus async messaging
+Creates SID; SNB returns subscription and IB instance IDs
+SNB to provisioning, notification, payment
+REST/JSON (Provisioning, Notification, Pay Method APIs)
+Payment data tokenised by payment provider; email through notification service
+SNB to SAP BRIM
+SOAP web services (or OData), WS-Security / mTLS
+Billing account and subscription charge setup
+AWS to SAP BRIM
+REST usage API or batch file ingestion (Usage Estimation API)
+Usage rated per billing cycle
+SAP BRIM to Oracle AR
+SOAP / AR interface tables (AutoInvoice)
+Invoice posting to receivables
+Oracle AR to SNB and Salesforce
+REST/JSON, event-driven (platform events)
+Invoice number, amount, due date, status
+SNB to Salesforce Service
+REST/JSON (Support API)
+Entitlement linked to SID and IB instance
+Cross-cutting principles: OAuth 2.0 or mTLS for service-to-service authentication; idempotency keys and correlation IDs on every call; retries with dead-letter handling for asynchronous hops; reconciliation reports between order, subscription and invoice counts. Protocols shown are typical for each platform and should be matched to the actual implementation.
+5. Quote entry channels and order variants
+Quote entry channels
+Sales-led
+Salesforce CPQ
+Customer self-service
+Commerce Cloud Platform
+Partner self-service
+Commerce Cloud Platform
+MSP self-service
+Commerce Cloud Platform
+Quote
+Deal Desk AI configuration
+Credit check
+Approval
+Quote and order variants
+New subscription - Greenfield or brownfield
+Add-on - More quantity, existing products
+Expansion - New products on existing sub
+Upgrade - Standard to Enterprise
+Renewal - Auto or manual, T-60 days
+Order and
+subscription
+Oracle OM to SNB
+new or amend
+Variant
+Quote and order treatment
+Subscription (SNB) effect
+Billing effect
+Add-on
+Incremental quote against the existing SID
+Quantity amendment, co-termed to current term
+Prorated charge for remaining cycle, then recurring
+Expansion
+New product lines added to the existing SID
+New subscription lines, co-termed, with provisioning
+New recurring charges from effective date
+Upgrade
+Standard-to-Enterprise edition swap
+Edition replaced on the same SID, term unchanged
+Unused Standard value credited, Enterprise charged
+Renewal, auto
+System generates renewal quote at T-60 days; order booked automatically at T-30 unless the customer opts out
+New term created on the same SID
+Next-term invoice; customer notified by email
+Renewal, manual
+Renewal opportunity and quote created at T-60 days and assigned to sales or partner; order booked on acceptance
+Term extended when order is booked
+Next-term invoice
+Renewal timeline: the SNB renewal scheduler flags a subscription 60 days before term end. Self-service channels (customer, partner, MSP) call the CPQ Quote API so that every quote, regardless of origin, passes the same credit check and approval controls.
+6. Use case: greenfield customer, new SID
+A new customer, Acme Corp, buys a 36-month subscription through a sales-led deal. No prior contract exists, so the flow runs from lead to support without any conversion logic.
+1. Lead to opportunity
+Salesforce
+LD-104522 to OPP-88310
+Acme Corp, opened 2026-01-12
+Source: sales-led
+2. Quote Q1
+Salesforce CPQ + Deal Desk AI
+Q-2026-0457
+$120,000/yr, 36 months
+Credit check passed, approved 2026-01-20
+3. Order O1
+Oracle EBS OM
+SO-5530012, booked 2026-02-03
+From Q-2026-0457
+4. Subscription S1
+SNB
+SUB-100245, SID created and activated
+2026-02-10 to 2029-02-09
+IB instance IB-INS-20481
+5. Onboarding
+SNB + notification email
+Welcome email sent 2026-02-10
+Pay method: ACH
+Bill-to address set
+6. Billing S1 + U1
+SAP BRIM
+Base $10,000/mo
+AWS usage U1 $1,875
+Monthly cycle, usage in arrears
+7. Invoice I1
+Oracle EBS AR
+INV-7700123, 2026-03-01
+$11,875.00, due 2026-03-31
+Synced to SNB and Salesforce
+8. Support
+Salesforce Service
+Entitlement ENT-31007
+Linked to SUB-100245 and IB-INS-20481
+Entity
+Sample value
+Entity
+Sample value
+Entity
+Sample value
+Lead / Opportunity
+LD-104522 / OPP-88310
+Order
+SO-5530012
+Invoice
+INV-7700123, $11,875.00
+Quote
+Q-2026-0457, $120,000/yr
+Subscription (SID)
+SUB-100245
+Usage U1
+$1,875 (AWS, Feb 2026)
+Credit check
+Passed 2026-01-20
+IB instance
+IB-INS-20481
+Entitlement
+ENT-31007
+7. Use case: brownfield customer, perpetual SNS converted to subscription
+An existing customer holds perpetual licenses with an active SNS contract. Converting to a subscription closes the SNS contract and credits the unused SNS period against the first subscription invoice.
+1. Existing perpetual + SNS
+Oracle EBS
+SNS-4400871
+IB instance IB-INS-77012
+$24,000/yr, 2026-04-01 to 2027-03-31
+2. Opportunity
+Salesforce
+OPP-91244
+SNS-to-subscription trade
+Opened 2026-09-15, Acme Corp
+3. Quote Q2
+CPQ + Deal Desk AI
+Q-2026-1189
+$54,000/yr, 36 months
+Credit check passed 2026-10-20
+4. SNS credit calculation
+Conversion date 2026-11-01
+Remaining term: 151 days
+$24,000 x 151/365 = $9,928.77
+5. Order O2
+Oracle EBS OM
+SO-5567340, booked 2026-10-28
+Subscription $54,000.00
+SNS credit -$9,928.77
+6. Subscription S2
+SNB
+SUB-100981 linked to IB-INS-77012
+2026-11-01 to 2029-10-31
+Old SNS-4400871 closed
+7. Onboarding
+SNB + notification email
+Email 2026-11-01
+Pay method and address confirmed
+8. Billing S2 + U2
+SAP BRIM
+Annual in advance, credit applied
+AWS usage U2 monthly in arrears
+9. Invoice I2
+Oracle EBS AR
+INV-7712908, 2026-11-01
+$54,000.00 - $9,928.77 = $44,071.23
+Synced to SNB and Salesforce
+10. Support
+Salesforce Service
+ENT-31411 linked to SUB-100981
+Old SNS entitlement closed 2026-10-31
+SNS credit calculation
+Value
+Annual SNS fee (SNS-4400871)
+$24,000.00
+Conversion effective / SNS term end
+2026-11-01 / 2027-03-31
+Remaining period
+151 days (Nov 30 + Dec 31 + Jan 31 + Feb 28 + Mar 31)
+SNS credit
+$24,000.00 x 151 / 365 = $9,928.77
+First subscription invoice (INV-7712908)
+$54,000.00 - $9,928.77 = $44,071.23
+8. Use cases: quote and order variants on an existing subscription
+Each example is independent and starts from the same baseline: SUB-100245, 100 units at $1,200/yr per unit ($10,000/mo), term 2026-02-10 to 2029-02-09, billed monthly on the 1st.
+A. Add-on: additional quantity of existing products
+Customer adds 10 units mid-term. The change is co-termed to the existing end date and the first partial month is prorated.
+1. Add-on quote
+Q-2026-2201
++10 units on SUB-100245
+Effective 2026-08-10
+Credit check, approval
+2. Order
+Oracle EBS OM
+SO-5588120
+10 units x $1,200/yr
+3. Subscription amend
+SNB
+AMD-100245-01
+Qty 100 to 110, co-termed
+End date 2029-02-09
+ENT-31007 qty updated
+4. Billing
+SAP BRIM
+Add-on $1,000/mo
+Aug 10-31: 22/31 days
+= $709.68 prorated
+5. Invoice
+INV-7731054, 2026-09-01
+$10,000 + $1,000 + $709.68
+= $11,709.68
+Synced to SNB, SFDC
+B. Expansion: new product on an existing subscription
+Customer adds a new product line. It is provisioned against the existing IB instance and co-termed.
+1. Expansion quote
+Q-2026-2415
+Add Backup module
+50 units x $600/yr = $30,000/yr
+Effective 2026-10-05
+2. Order
+Oracle EBS OM
+SO-5601377
+New line, co-termed
+3. Subscription amend
+SNB
+AMD-100245-02
+New line: Backup module
+Provisioned on IB-INS-20481
+Notification email sent
+4. Billing
+SAP BRIM
+New charge $2,500/mo
+Oct 5-31: 27/31 days
+= $2,177.42 prorated
+5. Invoice
+INV-7745890, 2026-11-01
+$10,000 + $2,500 + $2,177.42
+= $14,677.42
+Synced to SNB, SFDC
+C. Upgrade: Standard to Enterprise
+Edition changes mid-cycle on the same SID. Unused Standard value for the remaining 16 days is credited and Enterprise is charged for the same days.
+1. Upgrade quote
+Q-2026-2788
+Standard to Enterprise
+$120,000/yr to $168,000/yr
+Effective 2026-12-16
+2. Order
+Oracle EBS OM
+SO-5629004
+Replace edition line
+3. Subscription amend
+SNB
+AMD-100245-03
+Edition: Enterprise, same SID
+Term unchanged
+ENT-31007 support level updated
+4. Billing
+SAP BRIM
+Standard credit: 16/31 x $10,000 =
+-$5,161.29
+Enterprise: 16/31 x $14,000 =
+$7,225.81
+Net true-up $2,064.52
+5. Invoice
+INV-7771203, 2027-01-01
+$14,000 + $2,064.52
+= $16,064.52
+Synced to SNB, SFDC
+D. Renewal: auto and manual
+Renewal starts 60 days before term end. The path differs only in who creates and accepts the quote.
+1. T-60 days trigger
+SNB renewal scheduler
+2028-12-11 flags SUB-100245
+Term ends 2029-02-09
+Auto: system quote; manual: opp to
+rep or partner
+2. Renewal quote
+Q-2028-9012
+12 months, +5% uplift
+$120,000 to $126,000/yr
+Customer notified by email
+3. Renewal order
+Oracle EBS OM
+SO-6102245
+Auto: booked 2029-01-10 (T-30)
+unless opted out
+Manual: booked on acceptance
+4. Subscription term 2
+SNB
+Same SID SUB-100245
+2029-02-10 to 2030-02-09
+Prior term closed
+5. Billing and invoice
+SAP BRIM, Oracle AR
+INV-8123470, 2029-02-10
+$126,000 / 12 = $10,500.00
+Synced to SNB, SFDC
+Daily proration uses the actual days in the month. Renewal uplift of 5% is an illustrative pricing rule.
+9. Assumptions and notes
+1. All identifiers (quote, order, subscription, invoice, entitlement, IB instance), dates, customer names and amounts are fictitious and for illustration only. No proprietary data is included.
+2. SNB denotes the custom Subscription and Billing system. SNS denotes the support and subscription contract associated with perpetual licenses. SS denotes self-service.
+3. Integration protocols follow common patterns for each platform (REST/JSON with OAuth 2.0; SOAP with WS-Security for Oracle EBS and SAP). The specific services and endpoints in a production landscape will differ.
+4. Credit is calculated on actual days remaining over a 365-day year. Proration for monthly cycles uses actual days in the month.
+5. Renewal lead time of 60 days, the 5% uplift and the auto-renewal booking at T-30 days are example business rules.
+All identifiers, dates and amounts in this case study are fictitious sample values. Integration protocols shown are typical industry patterns.
