@@ -68,9 +68,9 @@ footer{padding:26px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 <li>Delivered a Generative AI assistant in Salesforce Service Cloud for Customer Service Operations, extending existing RPA bots: 90% faster case resolution, 30% lower operating cost.</li>
 <li>Modernized Rate Engine premium calculation with risk modifiers and national and regional factors: pricing accuracy improved to 95%.</li>
 <li>Onboarded ~20 insurance carriers on HIPAA 834 enrollment files and member ID feeds: 95% sync accuracy, 80% fewer manual errors.</li>
-<li>Driving consolidation of ~20 carriers into one provider, starting with Life and Disability, targeting 60% lower EDI/SFTP operating and maintenance cost.</li>
+<li>Driving phased consolidation of ~20 carriers into a single provider to reduce EDI/SFTP operating and maintenance cost.</li>
 <li>Replaced legacy PeopleSoft screens with React.js UI/UX in MFT (Managed File Transfer) for Benefits Support and Billing teams: 50% less process time.</li>
-<li>Enabled single sign-on for ~200,000 worksite employees to download ACA forms, eliminating ~$80K in yearly postage and delivery delays.</li>
+<li>Enabled single sign-on for worksite employees to download ACA forms, eliminating yearly postage costs and delivery delays.</li>
 <li>Turned annual leadership priorities into quarterly roadmaps balancing urgency and engineering capacity: 90% on-time releases, 15% higher CSAT.</li></ul></div>
 <div class="job"><h3>Lead Product Manager, VMware Software India</h3><p class="m">Aug 2011 to Dec 2023, Hyderabad</p><ul>
 <li>Launched the global Subscription Commerce Cloud (0-to-1) for enterprises, partners and MSPs: $10M+ ARR, CIO Award FY23.</li>
@@ -87,35 +87,51 @@ footer{padding:26px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 <section id="cases"><div class="w">
 <h2>Case studies</h2><p class="sub">Problem, approach and measured result. Figures are from my own programs; internal details are omitted.</p>
 
-<article class="case"><h3>Lead-to-Cash Integration: Salesforce, Oracle EBS, SAP BRIM and SNB</h3><dl>
-<dt>Problem</dt><dd>Creating a subscription touched five platforms (CRM and CPQ, order management, a custom subscription and billing system, billing and receivables), with several quote channels and order variants such as add-on, expansion, upgrade and renewal.</dd>
-<dt>Approach</dt><dd>Defined the end-to-end flow with a credit check before approval, REST and SOAP integration contracts between systems, and worked greenfield and brownfield examples, including converting a perpetual support contract to a subscription with credit for the unused period.</dd>
-<dt>Result</dt><dd>A documented, diagram-led reference for the full process. <a href="lead-to-cash/">Read the full case study</a>.</dd></dl>
-<span class="tag">Integration</span><span class="tag">Salesforce</span><span class="tag">Oracle EBS</span><span class="tag">SAP BRIM</span></article>
-  
 <article class="case"><h3>VMware Subscription Commerce Cloud</h3><dl>
 <dt>Problem</dt><dd>VMware was moving from perpetual licenses to subscriptions, and enterprises, partners and MSPs had no self-service way to order subscriptions or migrate.</dd>
-<dt>Approach</dt><dd>Launched the platform from inception and owned the roadmap for 50+ platform services covering offers and pricing, subscription creation and provisioning, support, payment methods, billing, usage analytics and renewals. Worked with R&amp;D on secure access designs (OAuth 2.0, OIDC, SAML 2.0, MFA, RBAC/ABAC).</dd>
+<dt>Platform scope</dt><dd>A subscription commerce platform covers the whole customer lifecycle: an offer and price catalog; self-service quoting and ordering; subscription creation, provisioning and entitlements; payment methods and billing; usage tracking; and renewals, upgrades and migrations. Each segment has different needs: enterprises want self-service ordering, partners need to price and order on behalf of customers, and MSPs often buy on usage-based terms.</dd>
+<dt>Approach</dt><dd>Launched the platform from inception and owned the roadmap and business requirements for 50+ platform services across that lifecycle: offers and pricing, subscription creation and provisioning, support, payment methods, billing, usage analytics and renewals. Worked with R&amp;D on access and entitlement design.</dd>
 <dt>Result</dt><dd>$10M+ ARR, 35% operational efficiency gain, and the VMware CIO Award FY23 plus two more internal awards for the upgrade programs.</dd></dl>
-<span class="tag">Subscription commerce</span><span class="tag">Pricing and offers</span><span class="tag">Billing and renewals</span></article>
-  
+<span class="tag">Subscription commerce</span><span class="tag">Offers and pricing</span><span class="tag">Entitlements</span><span class="tag">Billing and renewals</span></article>
+
 <article class="case"><h3>Deal Desk AI assistant and Subscription Upgrade</h3><dl>
 <dt>Problem</dt><dd>Quote lines drifted out of sync with Oracle Install Base data, and applying SnS credit and ending install base instances for upgraded customers was manual.</dd>
-<dt>Approach</dt><dd>Created a real-time Quote Lines Validator and AI assistant for Deal Desk in Salesforce CPQ, and automated SnS credit calculation and install base termination.</dd>
-<dt>Result</dt><dd>40% shorter quote-to-approval cycle, fewer manual line-by-line steps for brownfield upgrades. <a href="deal-desk-ai/">Read the full case study</a>.</dd></dl>
-<span class="tag">Salesforce CPQ</span><span class="tag">Oracle EBS</span><span class="tag">AI assistant</span></article>
+<dt>Context</dt><dd>In quote-to-cash, Deal Desk checks quotes, discounts and terms before approval. For renewals and upgrades, every quote line must match the customer&rsquo;s Install Base and service contract (status, quantity, Support and Subscription (SnS) number, end dates); when they drift, orders are rejected or reworked. Approvals normally follow a tiered matrix: low-value quotes with standard discounts are auto-approved, mid-range amounts or discounts go to the Regional Director of Sales, and the highest amounts or deepest discounts go to the VP of Sales. For brownfield customers moving from perpetual licenses to subscriptions, the remaining SnS value is credited and the legacy lines and install base instances are ended.</dd>
+<dt>Why standard CPQ was not enough</dt><dd>Standard Salesforce CPQ setup (product rules, price rules, discount schedules and approvals) works on data held inside Salesforce. It left gaps for Deal Desk:
+<ul><li><b>No live check against Install Base:</b> rules could not compare each quote line with current Oracle Install Base and service contract records, so mismatches surfaced only after an order failed.</li>
+<li><b>Approvals route, they do not review:</b> the approval matrix sends a quote to auto-approval, the Regional Director or the VP of Sales by amount and discount, but it does not tell Deal Desk which lines are wrong or why.</li>
+<li><b>Upgrade and renewal quotes are line-heavy:</b> checking many lines by hand was slow and error-prone, so an assistant that reviews them before approval removes that work.</li></ul></dd>
+<dt>Approach</dt><dd>Created a real-time Quote Lines Validator and AI assistant for Deal Desk in Salesforce CPQ, so quotes are checked before they enter the approval matrix and approvers and auto-approval work on clean quotes. Also automated SnS credit calculation and install base termination, working with the Deal Desk, customer service operations and Finance teams.</dd>
+<dt>Result</dt><dd>40% shorter quote-to-approval cycle, fewer manual line-by-line steps for brownfield upgrades.</dd></dl>
+<span class="tag">Salesforce CPQ</span><span class="tag">Oracle Install Base</span><span class="tag">AI assistant</span></article>
 
-<article class="case"><h3>Benefits pricing and carrier platform at TriNet</h3><dl>
+<article class="case"><h3>Tiered and bundled benefit plans in Salesforce CPQ</h3><dl>
+<dt>Problem</dt><dd>TriNet charged a flat per employee per month (PEPM) price for every worksite employee (WSE), regardless of company size. Customer feedback and TriNet&rsquo;s strategy to grow revenue called for pricing that rewards larger customers and encourages broader purchase.</dd>
+<dt>Context</dt><dd>Salesforce CPQ models what is sold as a product catalog with bundles and options, applies price books, price rules and discount schedules, routes exceptions through approval, and turns an accepted quote into an order and contract that downstream billing can use. Volume tiers and pre-configured bundles are standard CPQ pricing patterns, and they only work when the catalog and rules are clean enough for sales to trust.</dd>
+<dt>Approach</dt><dd>Designed the pricing model and configured it in Salesforce CPQ:
+<ul><li><b>Tiered pricing:</b> the price per employee steps down as the customer&rsquo;s WSE count grows, in place of one flat rate.</li>
+<li><b>Bundled pricing:</b> pre-configured offers priced at a discount compared with buying the same plans as standard offers.</li>
+<li><b>Rules:</b> pricing and discount rules so each quote carries consistent, approved pricing into the order.</li></ul></dd>
+<dt>Result</dt><dd>40% better Lead-to-Cash execution efficiency, with a pricing structure that supports TriNet&rsquo;s revenue growth strategy and gives customers a clearer reward for scale.</dd></dl>
+<span class="tag">Salesforce CPQ</span><span class="tag">Tiered pricing</span><span class="tag">Bundled offers</span><span class="tag">Discount rules</span></article>
+
+<article class="case"><h3>Benefits rating and carrier platform at TriNet</h3><dl>
 <dt>Problem</dt><dd>Premiums relied on coarse legacy band codes, and ~20 carriers each exchanged enrollment and member data through separate EDI and SFTP feeds with frequent manual fixes.</dd>
-<dt>Approach</dt><dd>Modernized the Rate Engine for risk-sharing and guaranteed-cost carriers using risk modifiers and national and regional factors; designed tiered and bundled plans in Salesforce CPQ; onboarded carriers on HIPAA 834 files; leading consolidation to a single provider, starting with Life and Disability.</dd>
-<dt>Result</dt><dd>Pricing accuracy improved to 95%, 95% sync accuracy, 80% fewer manual errors, 40% better Lead-to-Cash efficiency. The consolidation targets 60% lower feed cost.</dd></dl>
+<dt>Context</dt><dd>A benefits rate engine calculates premiums from plan rates, risk factors and geography. Moving from band codes to rates, risk modifiers and national and regional factors lets pricing reflect the actual risk-sharing or guaranteed-cost terms with each carrier. Each carrier receives enrollment changes as HIPAA 834 files over SFTP and returns member ID feeds, so onboarding a carrier means agreeing the file layout, mapping fields, testing, going live and reconciling exceptions.</dd>
+<dt>Approach</dt><dd>Modernized the Rate Engine for risk-sharing and guaranteed-cost carriers; onboarded carriers on HIPAA 834 files and member ID feeds; leading phased consolidation to a single provider to retire feeds.</dd>
+<dt>Result</dt><dd>Pricing accuracy improved to 95%, 95% sync accuracy and 80% fewer manual errors, with consolidation reducing the number of feeds to maintain.</dd></dl>
 <span class="tag">Rate engine</span><span class="tag">HIPAA 834</span><span class="tag">Carrier integrations</span></article>
 
 <article class="case"><h3>AI-assisted customer service operations</h3><dl>
-<dt>Problem</dt><dd>Customer Service Operations handled cases with process-specific RPA bots and manual effort, so resolution was slow and costly.</dd>
-<dt>Approach</dt><dd>Delivered a Generative AI assistant in Salesforce Service Cloud as a hybrid extension to the existing RPA bots.</dd>
-<dt>Result</dt><dd>90% faster case resolution and 30% lower operating cost. <a href="ai-customer-service-ops/">Read the full case study</a>.</dd></dl>
-<span class="tag">Generative AI</span><span class="tag">RPA</span><span class="tag">Service Cloud</span></article>
+<dt>Problem</dt><dd>Customer Service Operations (CSO) already used RPA bots for repeatable case handling, but the bots run on a schedule. Cases that arrived after a run, hit data or processing errors, or needed human judgment waited, so resolution was slow and costly.</dd>
+<dt>How the two work together</dt><dd>The RPA bots run in the early hours of each day and pick up every open service case created the previous day or earlier. The Generative AI assistant works as a co-pilot for the CSO team in Salesforce Service Cloud. It reviews cases the bots have not yet picked up and cases that need manual review, and summarizes the details. It suggests the next action, or passes the case to the right business team&rsquo;s queue or to a business manager, so the team can resolve it quickly.</dd>
+<dt>Approach</dt><dd>Delivered the assistant as a hybrid extension to the existing RPA bots rather than a replacement, so each case is handled by the bots, the co-pilot or the team, depending on what it needs.</dd>
+<dt>Why a co-pilot helps</dt><dd>Generative AI is widely used in service operations for the same reasons:
+<ul><li><b>Faster case review:</b> summaries replace reading long case histories, so agents move to the next step sooner.</li>
+<li><b>Fewer stuck cases:</b> cases with data or error issues, or ones the bots have not reached, are surfaced for review instead of waiting for the next run.</li>
+<li><b>Faster hand-offs:</b> suggested next actions and routing to the right queue or manager cut back-and-forth, leaving experienced staff free for cases that need judgment.</li></ul></dd>
+<dt>Result</dt><dd>90% faster case resolution and 30% lower operating cost.</dd></dl>
+<span class="tag">Generative AI</span><span class="tag">RPA</span><span class="tag">Service Cloud</span><span class="tag">Co-pilot</span></article>
 </div></section>
 
 <section id="skills"><div class="w">
