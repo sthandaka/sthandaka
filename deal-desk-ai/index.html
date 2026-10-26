@@ -1,1 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deal Desk AI Assistant: Case Study</title>
+<meta name="description" content="Real-time quote validation and an AI assistant for Deal Desk in a CPQ-to-order flow: 40% shorter quote-to-approval cycle.">
+<style>
+:root{--bg:#f6f8f9;--ink:#17222b;--mute:#52606b;--line:#d5dde2;--acc:#0e5a63;--tint:#e3f1f2}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1719;--ink:#e6eef0;--mute:#9db0b6;--line:#2a3b40;--acc:#6cc4cd;--tint:#173238}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 20px 72px}
+a{color:var(--acc)}a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2{font-family:Georgia,'Times New Roman',serif;line-height:1.2}
+h1{font-size:2rem;margin:24px 0 8px}h2{font-size:1.35rem;margin:40px 0 8px}
+.lead{color:var(--mute);margin:0 0 24px}
+.stat{background:var(--tint);border-left:4px solid var(--acc);padding:16px 20px;margin:24px 0}
+.stat b{font-size:2rem;font-family:Georgia,serif}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:12px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.wrap{overflow-x:auto}
+small{color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<a href="../">← Back to portfolio</a>
+<h1>Deal Desk AI assistant and real-time quote validation</h1>
+<p class="lead">Role: Product Manager. Domain: subscription quoting and approvals in a CPQ-to-order flow.</p>
 
+<div class="stat"><b>40%</b> shorter quote-to-approval cycle, with fewer manual line-by-line steps on upgrade quotes.</div>
+
+<h2>Problem</h2>
+<p>An enterprise software company was moving customers from perpetual licenses to subscriptions. Quote lines drifted out of sync with install base data in the ERP, so errors surfaced late, at order or billing. For customers converting a license with an active support contract, the support credit and the install base termination were handled by hand. Deal Desk checked quotes line by line, which slowed approvals and caused rework.</p>
+
+<h2>Approach</h2>
+<p>I paired a real-time quote validator with an AI assistant for Deal Desk, built into the CPQ quote screen. The principle: code does the exact work, and AI explains and guides.</p>
+<ul>
+<li><b>Validator (rules):</b> checks lines against install base, product rules, the price book and term rules as the quote is edited.</li>
+<li><b>Credit and termination (code):</b> support credit is prorated on remaining days, and the old install base instance is ended on conversion.</li>
+<li><b>Assistant (AI):</b> explains why a line failed, suggests a fix, gives discount guidance within policy and summarizes the deal for approvers.</li>
+<li><b>Approval:</b> stays with people. The assistant never approves a discount.</li>
+</ul>
+
+<h2>How a quote flows</h2>
+<ol>
+<li>A seller or customer builds a quote in CPQ.</li>
+<li>The validator checks changed lines in real time and flags blocks, warnings and notes.</li>
+<li>The assistant explains each flag and proposes a fix.</li>
+<li>The quote passes credit check and approval, with a short deal summary for approvers.</li>
+<li>The approved quote becomes an order, a subscription and an invoice.</li>
+</ol>
+
+<h2>Options considered</h2>
+<div class="wrap"><table>
+<tr><th>Option</th><th>Strength</th><th>Gap</th></tr>
+<tr><td>Rules-only validator</td><td>Exact and auditable</td><td>Error codes alone did not help sellers</td></tr>
+<tr><td>AI-only assistant</td><td>Helpful and flexible</td><td>Risky for pricing and credit math</td></tr>
+<tr><td><b>Hybrid (chosen)</b></td><td>Exact checks plus clear guidance</td><td>Rules need an owner and upkeep</td></tr>
+</table></div>
+
+<h2>Results</h2>
+<ul>
+<li>40% shorter quote-to-approval cycle.</li>
+<li>Exceptions-only review on upgrade quotes instead of checking every line.</li>
+<li>Errors caught at quote time rather than at order or billing.</li>
+</ul>
+
+<h2>What I learned</h2>
+<ul>
+<li>Fix data drift at the source, and show data freshness instead of hiding it.</li>
+<li>Severity levels (block, warn, note) cut false-positive fatigue.</li>
+<li>Generating explanations only from rule output keeps the AI consistent with the rules.</li>
+<li>Shadow mode and override tracking built trust with Deal Desk.</li>
+</ul>
+
+<p><small>Company names, volumes and internal details are omitted.</small></p>
+</main>
+</body>
+</html>
