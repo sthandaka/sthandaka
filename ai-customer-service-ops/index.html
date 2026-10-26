@@ -1,1 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-Assisted Customer Service Operations: Case Study</title>
+<meta name="description" content="A GenAI assistant in a CRM service platform extending RPA bots: 90% faster case handling and 30% lower operating cost.">
+<style>
+:root{--bg:#f6f8f9;--ink:#17222b;--mute:#52606b;--line:#d5dde2;--acc:#0e5a63;--tint:#e3f1f2}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1719;--ink:#e6eef0;--mute:#9db0b6;--line:#2a3b40;--acc:#6cc4cd;--tint:#173238}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 20px 72px}
+a{color:var(--acc)}a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2{font-family:Georgia,'Times New Roman',serif;line-height:1.2}
+h1{font-size:2rem;margin:24px 0 8px}h2{font-size:1.35rem;margin:40px 0 8px}
+.lead{color:var(--mute);margin:0 0 24px}
+.stat{background:var(--tint);border-left:4px solid var(--acc);padding:16px 20px;margin:24px 0}
+.stat b{font-size:2rem;font-family:Georgia,serif}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:12px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.wrap{overflow-x:auto}
+small{color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<a href="../">← Back to portfolio</a>
+<h1>Cutting case resolution time by 90% with a GenAI assistant on top of RPA</h1>
+<p class="lead">Role: Product Manager. Domain: customer service operations for two regulated back-office processes.</p>
 
+<div class="stat"><b>90%</b> faster case handling and <b>30%</b> lower operating cost, delivered in two phases.</div>
+
+<div class="wrap"><table>
+<tr><th>Metric</th><th>Before</th><th>Phase 1: RPA bots</th><th>Phase 2: + GenAI assistant</th></tr>
+<tr><td>Handling time per case</td><td>Baseline</td><td>~70% lower</td><td>~90% lower</td></tr>
+<tr><td>Elapsed time per case</td><td>3-5 days</td><td>~1 day</td><td>Under 1 day</td></tr>
+<tr><td>Operating cost</td><td>Baseline</td><td>n/a</td><td>~30% lower, net of tooling</td></tr>
+<tr><td>Case start</td><td>Next nightly run</td><td>Next nightly run</td><td>Same day, on demand</td></tr>
+</table></div>
+
+<h2>Problem</h2>
+<p>A customer operations team handled over 100,000 cases a year across two regulated processes. Each case took 50-60 manual steps passed between four or more teams, and 3-5 days end to end. Errors were costly because the data was sensitive.</p>
+
+<h2>Approach</h2>
+<p><b>Phase 1: RPA bots.</b> Bots automated the rule-based steps, including logins to government portals, with human validation between handoffs. Handling time dropped about 70%.</p>
+<p><b>Phase 2: GenAI assistant.</b> Two gaps remained. Reading notes, checking documents, handling exceptions and writing handoffs still needed people. And the bots ran once a night, so a case created after the cutoff waited for the next run. An assistant that agents run at any time, and that triggers the same bots, closed both gaps.</p>
+
+<h2>How a case flows</h2>
+<ol>
+<li>An agent opens a case and starts the assistant at any time.</li>
+<li>A small, fast model classifies the case, extracts fields and checks completeness.</li>
+<li>If something is missing, the assistant drafts a request and a person sends it.</li>
+<li>A larger model summarizes the case and proposes the update, using only the case record.</li>
+<li>The agent approves, edits or rejects. Sensitive updates always need human approval.</li>
+<li>On approval, the assistant triggers the bot, which runs the steps and logs the result.</li>
+<li>The assistant drafts the handoff note for the next team.</li>
+</ol>
+
+<h2>Choosing the stack</h2>
+<p>I scored three options on accuracy, security, cost at volume, integration effort and flexibility, using a golden set of about 500 historical cases: platform-native AI only, a single large cloud LLM, and platform-native orchestration with a two-tier LLM. The third won on cost per case, security and the ability to swap models. Token cost was small, so security and accuracy drove the decision.</p>
+
+<h2>Risk and governance</h2>
+<ul>
+<li>Sensitive identifiers were masked before any model call.</li>
+<li>Outputs were structured and schema-checked, and notes were treated as untrusted input.</li>
+<li>Launch gates: at least 95% field accuracy and zero privacy leakage in red-team tests.</li>
+<li>Staged rollout by case type, with a kill switch.</li>
+</ul>
+
+<h2>What I learned</h2>
+<ul>
+<li>Standardizing case templates mattered as much as model choice.</li>
+<li>Shadow mode with accept, edit and reject signals turned skeptics into champions.</li>
+<li>Freed capacity is not cash: it was redeployed, so net savings are smaller than capacity value.</li>
+</ul>
+
+<p><small>Company names, volumes and internal details are omitted.</small></p>
+</main>
+</body>
+</html>
